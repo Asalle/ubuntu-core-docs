@@ -1,30 +1,41 @@
-(ref-index-build-your-first-image)=
-# Build your first image
+---
+title: |
+  ![](logo.svg){width=1in}  
+output: pdf_document
+documentclass: article
+fontsize: 8pt
+mainfont: Ubuntu
+sansfont: Ubuntu 
+monofont: Ubuntu 
+mathfont: Ubuntu 
+linkcolor: orange
+---
 
+\small
 This tutorial will guide you through the steps required to **create your own Ubuntu Core image**, with **your own selection of snaps**, and **install it on a Renesas RZ device**.  
 
 # Requirements
 
 In addition to having a basic understanding of Linux and running commands from the terminal, this tutorial has hardware requirements.
 
-  For the host system used to build the image:
-  - [Ubuntu 24.04 LTS](https://releases.ubuntu.com/24.04/) or later installed
-  - MicroSD card reader
-  - Internet connectivity
-  - 10GB of free storage space
+  For the host system used to build the image:  
+  - [Ubuntu 24.04 LTS](https://releases.ubuntu.com/24.04/) or later installed  
+  - MicroSD card reader  
+  - Internet connectivity  
+  - 10GB of free storage space  
 
-  The target device:
-  - RZ/G2L or RZ/G2LC or RZ/G2UL
-  - 4GB+ microSD card
-  - keyboard and display (for setup only)
-  - Ethernet network connectivity
+  The target device:  
+  - RZ/G2L or RZ/G2LC or RZ/G2UL  
+  - 4GB+ microSD card  
+  - keyboard and display (for setup only)  
+  - Ethernet network connectivity  
 
 
 # Create an Ubuntu One account
 
 You will need an [Ubuntu One account](https://snapcraft.io/account) with an uploaded public key of a locally generated SSH key pair. 
 
-See [Use Ubuntu One for SSH](/how-to-guides/manage-ubuntu-core/use-ubuntu-one-ssh) for instructions on how to create an account and register an SSH key.
+See [Use Ubuntu One for SSH](https://documentation.ubuntu.com/core/how-to-guides/manage-ubuntu-core/use-ubuntu-one-ssh) for instructions on how to create an account and register an SSH key.
 
 With your account created, ensure you first [login](https://snapcraft.io/login) and accept the _Terms and Conditions_. With this done, your Ubuntu One account is ready to use.
 
@@ -58,7 +69,8 @@ $ snapcraft whoami
 email: <email-address>
 username: <username>
 id: xSfWKGdLoQBoQx88
-permissions: package_access, package_manage, package_metrics, package_push, package_register, package_release, package_update
+permissions: package_access, package_manage, package_metrics, 
+package_push, package_register, package_release, package_update
 channels: no restrictions
 expires: 2024-04-17T10:25:13.675Z 
 ```
@@ -73,7 +85,7 @@ At the heart of custom Ubuntu Core image creation is the _model assertion_. An a
 
 The model contains:
 * identification information, such as the developer-id and model name.
-* which [essential snaps](/explanation/core-elements/snaps-in-ubuntu-core) make up the device system.
+* which [essential snaps](https://documentation.ubuntu.com/core/explanation/core-elements/snaps-in-ubuntu-core) make up the device system.
 * other required or optional snaps that implement the device application functionality.
 
 See below for details on how to download and modify a model file to include your own selection of snaps.
@@ -87,14 +99,16 @@ For this project, we're going to modify the 64-bit reference model for the Renes
 Download and save the file locally with the following _wget_ command. We've called the file `my-model.json`:
 
 ```bash
-wget -O my-model.json https://raw.githubusercontent.com/snapcore/models/master/ubuntu-core-24-pi-arm64.json
+wget -O my-model.json \
+https://raw.githubusercontent.com/canonical/models/refs/heads/master\
+/devices/renesas/rzg2/ubuntu-core24-renesas-rzg2-arm64.json
 ```
 
 ## Edit the model file
 
 We now need to edit `my-model.json` using a text editor:
 
-```
+```bash
 nano my-model.json
 ```
 
@@ -103,7 +117,7 @@ The following fields in `my-model.json` need to be changed:
 
 ###  "authority-id" and "brand-id"
 
-```json
+```bash
 "authority-id": "canonical",
 "brand-id": "canonical",
 ```
@@ -113,7 +127,7 @@ These properties define the authority responsible for the image. Change both ins
 ### timestamp
 
 
-```json
+```bash
    "timestamp": "2024-04-19T08:42:32+00:00",
 ```
 
@@ -133,11 +147,11 @@ This needs to be provided at the end of the process; we’ll come back to this.
 
 This section lists the snaps to be included in the image. **pi** (shown above), **pi-kernel**, **core24** and **snapd** are the four snaps required for a functioning Ubuntu Core device. The additional **console-conf** snap is required for Ubuntu Core 24 devices.
 
-[Console-conf](/how-to-guides/image-creation/add-console-conf) is the interactive setup utility that's used to configure the network and the default user when the device is first booted. This is marked as optional, but for this tutorial, it needs to be mandatory to configure the device when it first boots. To do this, delete the `"presence": "optional"` line (line 41) and delete the comma at the end of the preceding line.
+[Console-conf](https://documentation.ubuntu.com/core/how-to-guides/image-creation/add-console-conf) is the interactive setup utility that's used to configure the network and the default user when the device is first booted. This is marked as optional, but for this tutorial, it needs to be mandatory to configure the device when it first boots. To do this, delete the `"presence": "optional"` line (line 41) and delete the comma at the end of the preceding line.
 
 Additional snaps are included using the same schema, with each snap requiring the following fields:
 - `name`: simply the snap name.
-- `type`: the [type of snap](/explanation/core-elements/snaps-in-ubuntu-core.md#types-of-snap). This is `app` for standard application snaps.
+- `type`: the [type of snap](https://documentation.ubuntu.com/core/explanation/core-elements/snaps-in-ubuntu-core.md#types-of-snap). This is `app` for standard application snaps.
 - `default-channel`: the [channel](https://snapcraft.io/docs/channels) to install the snap from.
 - `id`: a unique snap identifier associated with every published snap. This is `snap-id` in the output from `snap info <snap-name>`.
 
@@ -231,7 +245,7 @@ After finishing all your edits, the completed **my-model.json** text file should
 
 # Sign the model assertion
 
-After a model has been [created or modified](create-a-model), it must be signed with a GPG key to become a _model assertion_. This ensures the model cannot be altered without the key and also links the created image to both the signed version of the model and your [Ubuntu One account](access-ubuntu-one).
+After a model has been created or modified, it must be signed with a GPG key to become a _model assertion_. This ensures the model cannot be altered without the key and also links the created image to both the signed version of the model and your Ubuntu One account
 
 ## Create a key
 
@@ -239,7 +253,8 @@ First make sure there are no keys already associated with your account by runnin
 
 ```bash
 $ snapcraft list-keys
-No keys have been registered. See 'snapcraft register-key --help' to register a key.
+No keys have been registered. 
+See 'snapcraft register-key --help' to register a key.
 ```
 
 Now use `snapcraft` to create a key called **my-model-key** (the name is arbitrary):
@@ -252,12 +267,7 @@ Confirm passphrase: <passphrase>
 
 As shown above, you will be asked for a passphrase. You need to remember this as you'll be prompted to enter it whenever you use the key, including the very next step.
 
-```{admonition} Key management
-:class: tip
-
-Rather than creating a key for every device, the same key is typically used across all models or model families.
-
-```
+TIP: Rather than creating a key for every device, the same key is typically used across all models or model families.
 
 ## Register the key
 
@@ -266,12 +276,14 @@ We now need to upload the key and register it with your Ubuntu One account. This
 ```bash
 $ snapcraft register-key my-model-key
 Enter your Ubuntu One e-mail address and password.
-If you do not have an Ubuntu One account, you can create one at https://snapcraft.io/account
+If you do not have an Ubuntu One account,
+you can create one at https://snapcraft.io/account
 Email: <Ubuntu-SSO-email-address>
 Password: <Ubuntu-SSO-password>
 
 Registering key ...
-Done. The key "my-model-key" (<key fingerprint>) may be used to sign your assertions.
+Done. The key "my-model-key" (<key fingerprint>) may be used 
+to sign your assertions.
 ```
 
 Regardless of whether you're logged in with snapcraft, you will be asked for your account and password details. You'll also need to unlock the key with your passphrase, and when the process is complete, the `snapcraft list-keys` command will now list the registered key:
@@ -286,7 +298,7 @@ $ snapcraft list-keys
 
 As mentioned earlier, the timestamp in the model assertion must be set to a time and date _after_ the creation of our key. This means we need to edit `my-model.json` to update the timestamp with the current time.
 
-```json
+```bash
     "timestamp": "2022-04-04T10:40:41+00:00",
 ```
 
@@ -308,19 +320,16 @@ You will again be asked for your key's passphrase.
 
 The resultant `my-model.model` file contains the signed model assertion and can now be used to build the image.
 
-```{admonition} Signing failed error?
-:class: tip
 If you encounter a _gpg: signing failed_ error while signing your assertion from a non-desktop session, such as over SSH, run `export GPG_TTY=$(tty)` first.
-```
 
 # Build the image
 
-Images are built from the recipe contained in the [model assertion](/tutorials/build-your-first-image/create-a-model) using [ubuntu-image](https://github.com/canonical/ubuntu-image), a tool to generate a bootable image.
+Images are built from the recipe contained in the [model assertion](https://documentation.ubuntu.com/core/tutorials/build-your-first-image/create-a-model) using [ubuntu-image](https://github.com/canonical/ubuntu-image), a tool to generate a bootable image.
 
 
 First, install the `ubuntu-image` command from its snap:
 
-```
+```bash
 sudo snap install ubuntu-image --classic --edge
 ```
 
@@ -329,9 +338,17 @@ The `ubuntu-image` command requires three arguments; `snap` to indicate we're bu
 ```bash
 $ ubuntu-image snap --allow-snapd-kernel-mismatch my-model.model 
 [0] prepare_image
-WARNING: proceeding to download snaps ignoring validations, this default will change in the future. For now use --validation=enforce for validations to be taken into account, pass instead --validation=ignore to preserve current behavior going forward
-WARNING: the kernel for the specified UC20+ model does not carry assertion max formats information, assuming possibly incorrectly the kernel revision can use the same formats as snapd
-WARNING: snapd 2.68+ is not compatible with a kernel containing snapd prior to 2.68
+WARNING: proceeding to download snaps ignoring validations, 
+this default will change in the future. 
+For now use --validation=enforce for validations to be taken 
+into account, pass instead --validation=ignore to preserve 
+current behavior going forward
+WARNING: the kernel for the specified UC20+ model does not 
+carry assertion max formats information, assuming possibly 
+incorrectly the kernel revision can use the same formats 
+as snapd
+WARNING: snapd 2.68+ is not compatible with a kernel 
+containing snapd prior to 2.68
 [1] load_gadget_yaml
 [2] set_artifact_names
 [3] populate_rootfs_contents
@@ -345,13 +362,15 @@ Build successful
 ```
 You can safely ignore the warnings, and the entire process should only take a few minutes (depending on your connectivity), with the creation of  a `pi.img` Ubuntu Core image file being the end result.
 
-```{admonition} Console-conf as a separate snap in Ubuntu Core 24+
- :class: tip
+TIP:
+The _console-conf_ user-interface that configures the network and system 
+user when a device first boots has migrated to an optional snap in 
+Ubuntu Core 24 and later.
 
-The _console-conf_ user-interface that configures the network and system user when a device first boots has migrated to an optional snap in Ubuntu Core 24 and later.
-
-This is covered in [Create a model assertion](/tutorials/build-your-first-image/create-a-model), but `ubuntu-image` can add `console-conf` at image build time with an additional `--snap console-conf ` argument. For more details on these changes, see [console-conf for device onboarding](/how-to-guides/image-creation/add-console-conf).
-```
+This is covered in [Create a model assertion](https://documentation.ubuntu.com/core/tutorials/build-your-first-image/create-a-model), but `ubuntu-image` 
+can add `console-conf` at image build time with an additional 
+`--snap console-conf ` argument. For more details on these changes, 
+see [console-conf for device onboarding](https://documentation.ubuntu.com/core/how-to-guides/image-creation/add-console-conf).
 
 # Boot the image
 Now that you have a custom image for a Renesas RZ/G devices on a microSD card. Follow the intructions [here](https://documentation.ubuntu.com/core/tutorials/try-pre-built-images/install-on-a-device/install-on-renesas/) to flash the image and boot the device.
