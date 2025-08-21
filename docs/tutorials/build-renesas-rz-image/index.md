@@ -31,7 +31,7 @@ In addition to having a basic understanding of Linux and running commands from t
   - Ethernet network connectivity  
 
 
-# Create an Ubuntu One account
+# Step 1: Create an Ubuntu One account
 
 You will need an [Ubuntu One account](https://snapcraft.io/account) with an uploaded public key of a locally generated SSH key pair. 
 
@@ -43,7 +43,7 @@ You will now need to retrieve your developer account identifier. This is part of
 
 The next steps need to be performed in an existing Ubuntu LTS environment.
 
-## Snapcraft credentials
+## 1.1 Snapcraft credentials
 
 Your developer identifier can be retrieved with the [`snapcraft`](https://snapcraft.io/docs/snapcraft-overview) command, the tool that's also used to build and publish snaps. It can be installed by running:
 
@@ -60,7 +60,7 @@ export SNAPCRAFT_STORE_CREDENTIALS=$(cat credentials.txt)
 
 If you have yet to login to your Ubuntu One account with the `snapcraft` command, you will first be prompted for your email address, password, and second-factor authentication (if used).
 
-## Retrieve your developer account ID
+## 1.2 Retrieve your developer account ID
 
 With your authentication in place, the `snapcraft whoami` command will now display your developer identifier after the `id` field:
 
@@ -79,7 +79,7 @@ In the output above, the example **id** is `xSfWKGdLoQBoQx88` -- we'll use this 
 
 
 
-# Create the model assertion
+# Step 2: Create the model assertion
 
 At the heart of custom Ubuntu Core image creation is the _model assertion_. An assertion is a signed recipe that describes the components that comprise a complete image. An assertion is provided as JSON in a text file which is signed by a GPG key associated with the publisher's Ubuntu One account.
 
@@ -90,7 +90,7 @@ The model contains:
 
 See below for details on how to download and modify a model file to include your own selection of snaps.
 
-## Download a model file
+## 2.1 Download a model file
 
 The quickest way to create a new model assertion is to edit a model that already exists. Reference models for every supported Ubuntu Core device can be found in the [canonical/models](https://github.com/canonical/models) GitHub repository.
 
@@ -104,7 +104,7 @@ https://raw.githubusercontent.com/canonical/models/refs/heads/master\
 /devices/renesas/rzg2/ubuntu-core24-renesas-rzg2-arm64.json
 ```
 
-## Edit the model file
+## 2.2 Edit the model file
 
 We now need to edit `my-model.json` using a text editor:
 
@@ -128,7 +128,7 @@ These properties define the authority responsible for the image. Change both ins
 
 
 ```bash
-   "timestamp": "2024-04-19T08:42:32+00:00",
+   "timestamp": "2025-08-19T11:18:21+00:00",
 ```
 
 This needs to be provided at the end of the process; we’ll come back to this.
@@ -138,14 +138,15 @@ This needs to be provided at the end of the process; we’ll come back to this.
 ```json
     "snaps": [
         {
-            "name": "pi",
-            "type": "gadget",
             "default-channel": "24/stable",
-            "id": "YbGa9O3dAXl88YLI6Y1bGG74pwBxZyKg"
-        },
+            "id": "8icb75cOHIxavWWXmkVR2UJePXX3HFkF",
+            "name": "renesas-rz",
+            "type": "gadget"
+        }
+    ]
 ```
 
-This section lists the snaps to be included in the image. **pi** (shown above), **pi-kernel**, **core24** and **snapd** are the four snaps required for a functioning Ubuntu Core device. The additional **console-conf** snap is required for Ubuntu Core 24 devices.
+This section lists the snaps to be included in the image. **renesas-rz** (shown above), **renesas-kernel**, **core24** and **snapd** are the four snaps required for a functioning Ubuntu Core device. The additional **console-conf** snap is required for Ubuntu Core 24 devices.
 
 [Console-conf](https://documentation.ubuntu.com/core/how-to-guides/image-creation/add-console-conf) is the interactive setup utility that's used to configure the network and the default user when the device is first booted. This is marked as optional, but for this tutorial, it needs to be mandatory to configure the device when it first boots. To do this, delete the `"presence": "optional"` line (line 41) and delete the comma at the end of the preceding line.
 
@@ -155,27 +156,14 @@ Additional snaps are included using the same schema, with each snap requiring th
 - `default-channel`: the [channel](https://snapcraft.io/docs/channels) to install the snap from.
 - `id`: a unique snap identifier associated with every published snap. This is `snap-id` in the output from `snap info <snap-name>`.
 
-For this tutorial, we're going to add the [AdGuard Home](https://snapcraft.io/adguard-home) snap, an open source network-wide blocker for advertising and tracking. It's an ideal candidate for an Ubuntu Core image like this because it benefits from frequent autonomous updates and a confined environment.
-
-To add the AdGuard Home snap to our image, we need to add the JSON stanza to the _snaps_ section in our _my-model.json_ (note the comma you need to append to the preceding snap entry to show continuation):
+Snaps do not have dependencies, but they do require the presence of the [base snap](https://snapcraft.io/docs/base-snaps) they were built on. This can be added with the following:
 
 ```json
         {
-            "name": "adguard-home",
-            "type": "app",
             "default-channel": "latest/stable",
-            "id": "UXZIkJfJT2SPCGejjnSjOBqJ71yHk8bw"
-        },
-```
-
-Snaps do not have dependencies, but they do require the presence of the [base snap](https://snapcraft.io/docs/base-snaps) they were built on. AdGuard Home is built using a base of `core22` (see the output from `snap info adguard-home --verbose | grep "base:"`). This can be added with the following:
-
-```json
-        {
-            "name": "core22",
-            "type": "base",
-            "default-channel": "latest/stable",
-            "id": "amcUKQILKXHHTlmSa7NMdnXSx02dNeeT"
+            "id": "dwTAh7MZZ01zyriOZErqd1JynQLiOGvM",
+            "name": "core24",
+            "type": "base"
         }
 ```
 
@@ -187,67 +175,56 @@ After finishing all your edits, the completed **my-model.json** text file should
 
 ```json
 {
-    "type": "model",
-    "series": "16",
-    "model": "ubuntu-core-24-pi-arm64",
-    "architecture": "arm64",
-    "authority-id": "Zg6Qv6Z53HIkziXyxtn1XItIq",
-    "brand-id": "Zg6Qv6Z53HIkziXyxtn1XItIq",
-   "timestamp": "2024-04-19T08:42:32+00:00",
-    "base": "core24",
-    "grade": "signed",
-    "snaps": [
-        {
-            "name": "pi",
-            "type": "gadget",
-            "default-channel": "24/stable",
-            "id": "YbGa9O3dAXl88YLI6Y1bGG74pwBxZyKg"
-        },
-        {
-            "name": "pi-kernel",
-            "type": "kernel",
-            "default-channel": "24/stable",
-            "id": "jeIuP6tfFrvAdic8DMWqHmoaoukAPNbJ"
-        },
-        {
-            "name": "core24",
-            "type": "base",
-            "default-channel": "latest/stable",
-            "id": "dwTAh7MZZ01zyriOZErqd1JynQLiOGvM"
-        },
-        {
-            "name": "snapd",
-            "type": "snapd",
-            "default-channel": "latest/stable",
-            "id": "PMrrV4ml8uWuEUDBT8dSGnKUYbevVhc4"
-        },
-        {
-            "name": "console-conf",
-            "type": "app",
-            "default-channel": "24/stable",
-            "id": "ASctKBEHzVt3f1pbZLoekCvcigRjtuqw"
-        },
-        {
-            "name": "adguard-home",
-            "type": "app",
-            "default-channel": "latest/stable",
-            "id": "UXZIkJfJT2SPCGejjnSjOBqJ71yHk8bw"
-        },
-        {
-            "name": "core22",
-            "type": "base",
-            "default-channel": "latest/stable",
-            "id": "amcUKQILKXHHTlmSa7NMdnXSx02dNeeT"
-        }
-	]
+  "type": "model",
+  "authority-id": "canonical",
+  "revision": "1",
+  "series": "16",
+  "brand-id": "canonical",
+  "model": "renesas-rzg2",
+  "architecture": "arm64",
+  "base": "core24",
+  "grade": "signed",
+  "timestamp": "2025-08-14T08:03:54+00:00",
+  "snaps": [
+    {
+      "default-channel": "24/stable",
+      "id": "8icb75cOHIxavWWXmkVR2UJePXX3HFkF",
+      "name": "renesas-rz",
+      "type": "gadget"
+    },
+    {
+      "default-channel": "24/stable",
+      "id": "TfkSeypPcvFMoNky5XzwqV6pJSKZ43Hi",
+      "name": "renesas-kernel",
+      "type": "kernel"
+    },
+    {
+      "default-channel": "latest/stable",
+      "id": "dwTAh7MZZ01zyriOZErqd1JynQLiOGvM",
+      "name": "core24",
+      "type": "base"
+    },
+    {
+      "default-channel": "latest/stable",
+      "id": "PMrrV4ml8uWuEUDBT8dSGnKUYbevVhc4",
+      "name": "snapd",
+      "type": "snapd"
+    },
+    {
+      "default-channel": "24/stable",
+      "id": "ASctKBEHzVt3f1pbZLoekCvcigRjtuqw",
+      "name": "console-conf",
+      "type": "app"
+    }
+  ]
 }
 ```
 
-# Sign the model assertion
+# Step 3: Sign the model assertion
 
 After a model has been created or modified, it must be signed with a GPG key to become a _model assertion_. This ensures the model cannot be altered without the key and also links the created image to both the signed version of the model and your Ubuntu One account
 
-## Create a key
+## 3.1 Create a key
 
 First make sure there are no keys already associated with your account by running the `snapcraft list-keys` command (you will only have a key if you've previously signed an assertion; if you already have a key, you can use that one):
 
@@ -269,7 +246,7 @@ As shown above, you will be asked for a passphrase. You need to remember this as
 
 TIP: Rather than creating a key for every device, the same key is typically used across all models or model families.
 
-## Register the key
+## 3.2 Register the key
 
 We now need to upload the key and register it with your Ubuntu One account. This is accomplished with register-key:
 
@@ -294,22 +271,22 @@ $ snapcraft list-keys
 *   my-model-key  <key fingerprint>
 ```
 
-## Update the timestamp
+## 3.3 Update the timestamp
 
 As mentioned earlier, the timestamp in the model assertion must be set to a time and date _after_ the creation of our key. This means we need to edit `my-model.json` to update the timestamp with the current time.
 
 ```bash
-    "timestamp": "2022-04-04T10:40:41+00:00",
+    "timestamp": "2025-08-14T08:03:54+00:00",
 ```
 
 This is a UTC-formatted time and date value, used to denote the assertion's creation time. It needs to be replaced with the current time and  date, which can be generated with the following command:
 
 ```bash
 $ date -Iseconds --utc
-2023-09-29T09:29:09+00:00
+2025-08-19T11:18:21+00:00
 ```
 
-## Sign the model
+## 3.4 Sign the model
 
 A model assertion is created by feeding the JSON file into the `snap sign` command with your recently-created key name and capturing the output in the corresponding model file:
 
@@ -322,7 +299,7 @@ The resultant `my-model.model` file contains the signed model assertion and can 
 
 If you encounter a _gpg: signing failed_ error while signing your assertion from a non-desktop session, such as over SSH, run `export GPG_TTY=$(tty)` first.
 
-# Build the image
+# Step 4: Build the image
 
 Images are built from the recipe contained in the [model assertion](https://documentation.ubuntu.com/core/tutorials/build-your-first-image/create-a-model) using [ubuntu-image](https://github.com/canonical/ubuntu-image), a tool to generate a bootable image.
 
@@ -360,7 +337,7 @@ containing snapd prior to 2.68
 [9] generate_snap_manifest
 Build successful
 ```
-You can safely ignore the warnings, and the entire process should only take a few minutes (depending on your connectivity), with the creation of  a `pi.img` Ubuntu Core image file being the end result.
+You can safely ignore the warnings, and the entire process should only take a few minutes (depending on your connectivity), with the creation of  a `ubuntu.img` Ubuntu Core image file being the end result.
 
 TIP:
 The _console-conf_ user-interface that configures the network and system 
@@ -372,6 +349,13 @@ can add `console-conf` at image build time with an additional
 `--snap console-conf ` argument. For more details on these changes, 
 see [console-conf for device onboarding](https://documentation.ubuntu.com/core/how-to-guides/image-creation/add-console-conf).
 
-# Boot the image
+# Step 5: Boot the image
 Now that you have a custom image for a Renesas RZ/G devices on a microSD card. Follow the intructions [here](https://documentation.ubuntu.com/core/tutorials/try-pre-built-images/install-on-a-device/install-on-renesas/) to flash the image and boot the device.
 
+The instruction is for G2L, but it will work for G2LC and G2UL as well. The image is identical, the only difference are the bootassets - they are specific per device. You can distinguish them easily: the board name is mentioned in the filename.
+
+| Name | Flash Writer                                      | FIP file                  | 2nd stage BL |
+|------|---------------------------------------------------|---------------------------|------------------------------|
+| G2L  | Flash_Writer_SCIF_RZG2L_SMARC_DDR4_2GB.mot        | fip-smarc-rzg2l_pmic.srec | bl2_bp-smarc-rzg2l_pmic.srec |
+| G2LC | Flash_Writer_SCIF_RZG2LC_SMARC_DDR4_2GB.mot       | fip-smarc-rzg2lc.srec     |  bl2_bp-smarc-rzg2lc.srec |
+| G2UL | Flash_Writer_SCIF_RZG2UL_SMARC_DDR4_1GB_1PCS.mot  | fip-smarc-rzg2ul.srec     | bl2_bp-smarc-rzg2ul.srec
