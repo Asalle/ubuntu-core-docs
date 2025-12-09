@@ -250,7 +250,8 @@ $if(highlighting-macros)$
 $highlighting-macros$
 $endif$
 $if(tables)$
-\usepackage{longtable,booktabs,array}
+\usepackage{longtable}
+\usepackage{booktabs,array}
 $if(multirow)$
 \usepackage{multirow}
 $endif$
