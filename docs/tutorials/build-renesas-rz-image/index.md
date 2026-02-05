@@ -25,7 +25,7 @@ In addition to having a basic understanding of Linux and running commands from t
   - 10GB of free storage space  
 
   The target device:  
-  - RZ/G2L or RZ/G2LC or RZ/G2UL  
+  - RZ/G2L or RZ/G2LC or RZ/G2UL or RZ/V2L  
   - 4GB+ microSD card  
   - keyboard and display (for setup only)  
   - Ethernet network connectivity  
@@ -352,11 +352,9 @@ see [console-conf for device onboarding](https://documentation.ubuntu.com/core/h
 # Step 5: Boot the image
 Now that you have a custom image for a Renesas RZ/G devices on a microSD card. Follow the intructions [here](https://documentation.ubuntu.com/core/tutorials/try-pre-built-images/install-on-a-device/install-on-renesas/) to flash the image and boot the device.
 
-The instruction is for G2L, but it will work for G2LC and G2UL as well. The image is identical, the only difference are the bootassets - they are specific per device. You can distinguish them easily: the board name is mentioned in the filename.
+The instruction is for G2L, but it will work for G2LC, G2UL as well as V2L. The image is identical, the only difference are the bootassets - they are specific per device. You can distinguish them easily: the board name is mentioned in the filename.
 
 Boot assets can be found pre-built at [the official ubuntu renesas-iot page](https://ubuntu.com/download/renesas-iot). Please make sure to download the boot assets for Ubuntu Core.
-
-Each board has a Secure Boot variant, please make sure to pick the `-secure` file if you have this variant board and want to enable the Secure Boot.
 
 Contents of each bootasset tarball is as follows:
 
@@ -365,15 +363,18 @@ Contents of each bootasset tarball is as follows:
 | G2L  | Flash_Writer_SCIF_RZG2L_ SMARC_DDR4_2GB.mot       
 | G2LC | Flash_Writer_SCIF_RZG2LC_ SMARC_DDR4_2GB.mot      
 | G2UL | Flash_Writer_SCIF_RZG2UL_ SMARC_DDR4_1GB_1PCS.mot 
+| V2L  | Flash_Writer_SCIF_RZV2L_SMARC_DDR4_2GB.mot 
 
 | Name | FIP file                  
 |------|---------------------------
 | G2L   | fip-smarc-rzg2l_pmic.srec
 | G2LC  | fip-smarc-rzg2lc.srec    
 | G2UL  | fip-smarc-rzg2ul.srec    
+| V2L   | fip-smarc-rzv2l.srec    
 
  | Name |  2nd stage BL |
 |------|------------------------------|
  | G2L   | bl2_bp-smarc-rzg2l_pmic.srec |
  | G2LC  |  bl2_bp-smarc-rzg2lc.srec |
  | G2UL  | bl2_bp-smarc-rzg2ul.srec
+ | V2L   | bl2_bp-smarc-rzv2l_pmic.srec

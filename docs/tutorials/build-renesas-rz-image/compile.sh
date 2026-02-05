@@ -1,5 +1,9 @@
 #!/bin/zsh
 
+
+# Dependencies:
+# apt install texlive-full pandoc librsvg2-bin
+
 pandoc index.md --pdf-engine=lualatex \
 	 --toc \
 	 --template=./latex.template \
