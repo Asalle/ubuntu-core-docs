@@ -24,11 +24,20 @@ In addition to having a basic understanding of Linux and running commands from t
   - Internet connectivity  
   - 10GB of free storage space  
 
-  The target device:  
-  - RZ/G2L or RZ/G2LC or RZ/G2UL or RZ/V2L  
+  For the target device:  
   - 4GB+ microSD card  
   - keyboard and display (for setup only)  
   - Ethernet network connectivity  
+
+  Supported target devices:
+  - RZ/G2L
+  - RZ/G2LC
+  - RZ/G2UL
+  - RZ/V2L
+  - RZ/G3E
+  - RZ/G3S
+  - RZ/V2H
+  - RZ/V2N
 
 
 # Step 1: Create an Ubuntu One account
@@ -92,9 +101,13 @@ See below for details on how to download and modify a model file to include your
 
 ## 2.1 Download a model file
 
-The quickest way to create a new model assertion is to edit a model that already exists. Reference models for every supported Ubuntu Core device can be found in the [canonical/models](https://github.com/canonical/models) GitHub repository.
+The quickest way to create a new model assertion is to edit a model that already exists. Reference models for every supported Ubuntu Core device can be found in the [canonical/models](https://github.com/canonical/models/) GitHub repository.
 
-For this project, we're going to modify the 64-bit reference model for the Renesas RZ devices: [ubuntu-core24-renesas-rzg2-arm64.json](https://raw.githubusercontent.com/canonical/models/refs/heads/master/devices/renesas/rzg2/ubuntu-core24-renesas-rzg2-arm64.json).
+You can choose here if you want core24 or core26 model, they differ on the base snap that they provide. Check out [this doc about the base snaps](https://ubuntu.com/docs/snapcraft/9/reference/bases/).
+
+For G2L, G2UL, G2LC and V2L please select [the core24 model](https://raw.githubusercontent.com/canonical/models/refs/heads/master/devices/renesas/rzg2/ubuntu-core24-renesas-rzg2-arm64.json). For all others, please use the [core26-based model](https://raw.githubusercontent.com/canonical/models/refs/heads/main/devices/renesas/rz/ubuntu-core-26-renesas-rz-arm64.json).
+
+For this project, we're going to modify the 64-bit reference model for the Renesas RZ devices: [ubuntu-core24-renesas-rzg2-arm64.json](https://raw.githubusercontent.com/canonical/models/refs/heads/master/devices/renesas/rzg2/ubuntu-core24-renesas-rzg2-arm64.json). For core26-based model, steps are almost identical.
 
 Download and save the file locally with the following _wget_ command. We've called the file `my-model.json`:
 
@@ -168,6 +181,17 @@ Snaps do not have dependencies, but they do require the presence of the [base sn
 ```
 
 The `snap-id` for a snap is in the output of the `snap info <snap-name>` command.
+
+### List of available snaps
+
+- [rz-camera-ov5645](https://snapcraft.io/rz-camera-ov5645) - access to MIPI camera and gstreamer.
+- [rz-gpu-snap-core24](https://snapcraft.io/rz-gpu-snap-core24) - enables other snaps to use hardware-accelerated graphics based on mali libraries (G2L and V2L only).
+- [rzv-ai-sdk-collection](https://snapcraft.io/rzv-ai-sdk-collection) - a set of test apps for DRP-AI on RZ/V2L.
+- [rzv-ai-applications](https://snapcraft.io/rzv-ai-applications) - a set of test apps for DRP-AI on RZ/V2H.
+- [rzv-ai-applications-v2n](https://snapcraft.io/rzv-ai-applications-v2n) - a set of test apps for DRP-AI on RZ/V2N.
+
+
+If a snap is not available for you, most likely it has not been adapted to a new base snap yet. The list is changing constantly, we'll update it with new items in the future.
 
 ### Complete model example
 
@@ -350,31 +374,7 @@ can add `console-conf` at image build time with an additional
 see [console-conf for device onboarding](https://documentation.ubuntu.com/core/how-to-guides/image-creation/add-console-conf).
 
 # Step 5: Boot the image
-Now that you have a custom image for a Renesas RZ/G devices on a microSD card. Follow the intructions [here](https://documentation.ubuntu.com/core/tutorials/try-pre-built-images/install-on-a-device/install-on-renesas/) to flash the image and boot the device.
+Now that you have a custom image for a Renesas RZ device on a microSD card. Follow the intructions [here](https://documentation.ubuntu.com/core/how-to-guides/deploy-an-image/install-on-renesas/index.html) to flash the image and boot the device.
 
-The instruction is for G2L, but it will work for G2LC, G2UL as well as V2L. The image is identical, the only difference are the bootassets - they are specific per device. You can distinguish them easily: the board name is mentioned in the filename.
+Boot assets can be found pre-built at [the official ubuntu renesas-iot page](https://ubuntu.com/download/renesas-iot) and are specific per device. You can distinguish them easily: the board name is mentioned in the filename.
 
-Boot assets can be found pre-built at [the official ubuntu renesas-iot page](https://ubuntu.com/download/renesas-iot). Please make sure to download the boot assets for Ubuntu Core.
-
-Contents of each bootasset tarball is as follows:
-
-| Name | Flash Writer                                      
-|------|---------------------------------------------------
-| G2L  | Flash_Writer_SCIF_RZG2L_ SMARC_DDR4_2GB.mot       
-| G2LC | Flash_Writer_SCIF_RZG2LC_ SMARC_DDR4_2GB.mot      
-| G2UL | Flash_Writer_SCIF_RZG2UL_ SMARC_DDR4_1GB_1PCS.mot 
-| V2L  | Flash_Writer_SCIF_RZV2L_SMARC_DDR4_2GB.mot 
-
-| Name | FIP file                  
-|------|---------------------------
-| G2L   | fip-smarc-rzg2l_pmic.srec
-| G2LC  | fip-smarc-rzg2lc.srec    
-| G2UL  | fip-smarc-rzg2ul.srec    
-| V2L   | fip-smarc-rzv2l.srec    
-
- | Name |  2nd stage BL |
-|------|------------------------------|
- | G2L   | bl2_bp-smarc-rzg2l_pmic.srec |
- | G2LC  |  bl2_bp-smarc-rzg2lc.srec |
- | G2UL  | bl2_bp-smarc-rzg2ul.srec
- | V2L   | bl2_bp-smarc-rzv2l_pmic.srec
