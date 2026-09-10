@@ -29,15 +29,11 @@ In addition to having a basic understanding of Linux and running commands from t
   - keyboard and display (for setup only)  
   - Ethernet network connectivity  
 
-  Supported target devices:
-  - RZ/G2L
-  - RZ/G2LC
-  - RZ/G2UL
-  - RZ/V2L
-  - RZ/G3E
-  - RZ/G3S
-  - RZ/V2H
-  - RZ/V2N
+  Supported target devices:  
+  - RZ/G3E  
+  - RZ/G3S  
+  - RZ/V2H  
+  - RZ/V2N  
 
 
 # Step 1: Create an Ubuntu One account
