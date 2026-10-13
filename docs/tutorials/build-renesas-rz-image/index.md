@@ -30,10 +30,16 @@ In addition to having a basic understanding of Linux and running commands from t
   - Ethernet network connectivity  
 
   Supported target devices:  
+  - RZ/G2L  
+  - RZ/G2LC  
+  - RZ/G2UL  
+  - RZ/V2L  
   - RZ/G3E  
   - RZ/G3S  
   - RZ/V2H  
   - RZ/V2N  
+  - RZ/T2H  
+  - RZ/N2H  
 
 
 # Step 1: Create an Ubuntu One account
@@ -327,7 +333,7 @@ Images are built from the recipe contained in the [model assertion](https://docu
 First, install the `ubuntu-image` command from its snap:
 
 ```bash
-sudo snap install ubuntu-image --classic --edge
+sudo snap install ubuntu-image --classic
 ```
 
 The `ubuntu-image` command requires three arguments; `snap` to indicate we're building a snap-based Ubuntu Core image, `--allow-snapd-kernel-mismatch` to ignore a difference in the versions of snapd we're using, and finally, the filename of our previously-signed model assertion to build an image:
