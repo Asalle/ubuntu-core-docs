@@ -107,16 +107,15 @@ The quickest way to create a new model assertion is to edit a model that already
 
 You can choose here if you want core24 or core26 model, they differ on the base snap that they provide. Check out [this doc about the base snaps](https://ubuntu.com/docs/snapcraft/9/reference/bases/).
 
-For G2L, G2UL, G2LC and V2L please select [the core24 model](https://raw.githubusercontent.com/canonical/models/refs/heads/master/devices/renesas/rzg2/ubuntu-core24-renesas-rzg2-arm64.json). For all others, please use the [core26-based model](https://raw.githubusercontent.com/canonical/models/refs/heads/main/devices/renesas/rz/ubuntu-core-26-renesas-rz-arm64.json).
+For G2L, G2UL, G2LC and V2L please select [the core24 model](https://github.com/canonical/models/blob/main/devices/renesas/rz/ubuntu-core-24-renesas-rz-arm64.model). For all others, please use the [core26-based model](https://raw.githubusercontent.com/canonical/models/refs/heads/main/devices/renesas/rz/ubuntu-core-26-renesas-rz-arm64.json).
 
-For this project, we're going to modify the 64-bit reference model for the Renesas RZ devices: [ubuntu-core24-renesas-rzg2-arm64.json](https://raw.githubusercontent.com/canonical/models/refs/heads/master/devices/renesas/rzg2/ubuntu-core24-renesas-rzg2-arm64.json). For core26-based model, steps are almost identical.
+For this project, we're going to modify the 64-bit reference model for the Renesas RZ devices: [ubuntu-core-24-renesas-rz-arm64.json](https://github.com/canonical/models/blob/main/devices/renesas/rz/ubuntu-core-24-renesas-rz-arm64.model). For core26-based model, steps are almost identical.
 
 Download and save the file locally with the following _wget_ command. We've called the file `my-model.json`:
 
 ```bash
-wget -O my-model.json \
-https://raw.githubusercontent.com/canonical/models/refs/heads/master\
-/devices/renesas/rzg2/ubuntu-core24-renesas-rzg2-arm64.json
+wget -O my-model.json https://raw.githubusercontent.com/canonical/models/\
+refs/heads/main/devices/renesas/rz/ubuntu-core-24-renesas-rz-arm64.model
 ```
 
 ## 2.2 Edit the model file
@@ -186,8 +185,9 @@ The `snap-id` for a snap is in the output of the `snap info <snap-name>` command
 
 ### List of available snaps
 
-- [rz-camera-ov5645](https://snapcraft.io/rz-camera-ov5645) - access to MIPI camera and gstreamer.
-- [rz-gpu-snap-core24](https://snapcraft.io/rz-gpu-snap-core24) - enables other snaps to use hardware-accelerated graphics based on mali libraries (G2L and V2L only).
+- [rz-camera-ov5645](https://snapcraft.io/rz-camera-ov5645) - access to MIPI camera and gstreamer for the Coral camera (G2L/V2L).
+- [rz-camera-controller](https://snapcraft.io/rz-camera-controller/) - MIPI camera and gstreamer for e-con cameras.
+- [rz-gpu-snap-core24](https://snapcraft.io/rz-gpu-snap-core24) - enables other snaps to use hardware-accelerated graphics based on mali libraries (G2L/V2L).
 - [rzv-ai-sdk-collection](https://snapcraft.io/rzv-ai-sdk-collection) - a set of test apps for DRP-AI on RZ/V2L.
 - [rzv-ai-applications](https://snapcraft.io/rzv-ai-applications) - a set of test apps for DRP-AI on RZ/V2H.
 - [rzv-ai-applications-v2n](https://snapcraft.io/rzv-ai-applications-v2n) - a set of test apps for DRP-AI on RZ/V2N.
@@ -302,14 +302,15 @@ $ snapcraft list-keys
 As mentioned earlier, the timestamp in the model assertion must be set to a time and date _after_ the creation of our key. This means we need to edit `my-model.json` to update the timestamp with the current time.
 
 ```bash
-    "timestamp": "2025-08-14T08:03:54+00:00",
+    "timestamp": "2026-11-16T12:28:28+00:00",
 ```
 
 This is a UTC-formatted time and date value, used to denote the assertion's creation time. It needs to be replaced with the current time and  date, which can be generated with the following command:
 
 ```bash
 $ date -Iseconds --utc
-2025-08-19T11:18:21+00:00
+2026-11-16T12:28:28+00:00
+
 ```
 
 ## 3.4 Sign the model
